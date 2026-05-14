@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>C Estética · Raquel Sánchez</title>
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>* { margin: 0; padding: 0; box-sizing: border-box; } body { background: #0A090F; }</style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState } = React;
+    const C = {
+      bg:"#0A090F", bgSoft:"#110F1A", card:"#151220", cardHover:"#1C1830",
+      primary:"#7C3AED", primaryLight:"#7C3AED22", primaryMid:"#9B5BF5", primaryGlow:"#7C3AED40",
+      teal:"#0DCFB8", tealLight:"#0DCFB820",
+      accent:"#BF7AF0", text:"#F0EDF8", textSoft:"#A89DC0", muted:"#6B6080",
+      border:"#2A2440", borderLight:"#332D50",
+      success:"#10B981", successLight:"#10B98120",
+      warning:"#F59E0B", warningLight:"#F59E0B20",
+      danger:"#EF4444", dangerLight:"#EF444420",
+    };
+    const FONT="'Space Grotesk','Segoe UI',system-ui,sans-serif";
+    const HEAD="'Syne','Segoe UI',system-ui,sans-serif";
+
+    const SPECIALTIES = [
+      { category:"Tratamientos con Láser", emoji:"⚡", color:C.teal, services:[
+        {id:1, name:"Nevus (lunares)",        duration:30, price:40,  desc:"Eliminación de lunares benignos con láser de precisión"},
+        {id:2, name:"Millium",                duration:20, price:30,  desc:"Eliminación de quistes de queratina con láser"},
+        {id:3, name:"Arañas vasculares",      duration:30, price:45,  desc:"Tratamiento de cúperos y telangiectasias faciales"},
+        {id:4, name:"Hiperplasia sebácea",    duration:30, price:40,  desc:"Reducción de glándulas sebáceas dilatadas"},
+        {id:5, name:"Verruga / Fibroma",      duration:20, price:35,  desc:"Eliminación de verrugas y fibromas cutáneos"},
+        {id:6, name:"Sesión combinada láser", duration:60, price:80,  desc:"Tratamiento múltiple de imperfecciones en una sola sesión"},
+      ]},
+      { category:"Depilación Láser", emoji:"✨", color:C.primary, services:[
+        {id:7,  name:"Depilación láser facial",        duration:20, price:25,  desc:"Labio, mentón, patillas o cejas"},
+        {id:8,  name:"Depilación láser axilas",        duration:20, price:30,  desc:"Depilación definitiva de axilas con láser"},
+        {id:9,  name:"Depilación láser ingles",        duration:30, price:40,  desc:"Ingles completas o brasileña con láser"},
+        {id:10, name:"Depilación láser piernas",       duration:45, price:60,  desc:"Medias o piernas completas con láser"},
+        {id:11, name:"Depilación láser cuerpo completo",duration:90,price:120, desc:"Sesión completa de depilación láser corporal"},
+        {id:12, name:"Zona pequeña",                   duration:20, price:25,  desc:"Brazos, espalda u otra zona específica"},
+      ]},
+      { category:"Tratamientos Faciales", emoji:"🌟", color:C.accent, services:[
+        {id:13, name:"Limpieza facial profunda", duration:60, price:45, desc:"Limpieza, extracción y tratamiento personalizado"},
+        {id:14, name:"Hidratación intensiva",    duration:45, price:40, desc:"Tratamiento hidratante de choque para piel seca"},
+        {id:15, name:"Tratamiento antiedad",     duration:60, price:55, desc:"Reafirmante y antiarrugas con activos premium"},
+        {id:16, name:"Peeling químico",          duration:45, price:50, desc:"Renovación celular y uniformización del tono"},
+        {id:17, name:"Microdermoabrasión",       duration:45, price:50, desc:"Exfoliación mecánica para piel renovada y luminosa"},
+      ]},
+      { category:"Tratamientos Corporales", emoji:"💆", color:"#5B8AF0", services:[
+        {id:18, name:"Masaje relajante", duration:60, price:45, desc:"Masaje corporal completo para aliviar tensiones"},
+        {id:19, name:"Presoterapia",     duration:45, price:35, desc:"Drenaje linfático y mejora de la circulación"},
+        {id:20, name:"Cavitación",       duration:45, price:50, desc:"Reducción localizada de grasa con ultrasonidos"},
+        {id:21, name:"Radiofrecuencia",  duration:45, price:55, desc:"Reafirmación y remodelación corporal"},
+      ]},
+    ];
+
+    const ALL_SLOTS=["10:00","10:30","11:00","11:30","12:00","16:00","16:30","17:00","17:30","18:00","18:30","19:00","19:30"];
+    const TODAY=new Date().toISOString().split("T")[0];
+    const SAMPLE=[
+      {id:1,name:"Carmen López",   phone:"612 345 678",email:"",service:"Arañas vasculares",      date:"2026-05-13",time:"10:00",status:"confirmada",notes:"Zona mejillas"},
+      {id:2,name:"Patricia Gómez",phone:"698 111 222",email:"",service:"Depilación láser axilas", date:"2026-05-13",time:"11:00",status:"pendiente",  notes:""},
+      {id:3,name:"Rosa Martínez", phone:"654 321 987",email:"",service:"Limpieza facial profunda",date:"2026-05-14",time:"10:30",status:"pendiente",  notes:"Piel mixta con tendencia grasa"},
+      {id:4,name:"Julia Soler",   phone:"677 889 900",email:"",service:"Cavitación",              date:"2026-05-14",time:"17:00",status:"confirmada",notes:""},
+      {id:5,name:"Marina Blasco", phone:"623 456 789",email:"",service:"Nevus (lunares)",         date:"2026-05-15",time:"11:00",status:"pendiente",  notes:"3 lunares zona cuello"},
+    ];
+
+    const fmtDate=(d)=>new Date(d+"T12:00:00").toLocaleDateString("es-ES",{weekday:"long",day:"numeric",month:"long"});
+    const cap=(s)=>s.charAt(0).toUpperCase()+s.slice(1);
+    const statusStyle=(s)=>({color:s==="confirmada"?C.success:s==="cancelada"?C.danger:C.warning,background:s==="confirmada"?C.successLight:s==="cancelada"?C.dangerLight:C.warningLight});
+    const getCatColor=(n)=>{for(const sp of SPECIALTIES)if(sp.services.find(s=>s.name===n))return sp.color;return C.primary;};
+
+    function App(){
+      const[view,setView]=useState("home");
+      const[step,setStep]=useState(1);
+      const[service,setService]=useState(null);
+      const[date,setDate]=useState("");
+      const[time,setTime]=useState("");
+      const[form,setForm]=useState({name:"",phone:"",email:"",notes:""});
+      const[appts,setAppts]=useState(SAMPLE);
+      const[adminAuth,setAdminAuth]=useState(false);
+      const[adminPass,setAdminPass]=useState("");
+      const[adminErr,setAdminErr]=useState("");
+      const[filter,setFilter]=useState("hoy");
+      const[calMonth,setCalMonth]=useState(()=>{const d=new Date();return new Date(d.getFullYear(),d.getMonth(),1);});
+
+      const slotTaken=(d,t)=>appts.some(a=>a.date===d&&a.time===t&&a.status!=="cancelada");
+      const submitBooking=()=>{setAppts(p=>[...p,{id:Date.now(),...form,service:service.name,date,time,status:"pendiente"}]);setStep(5);};
+      const updateStatus=(id,status)=>setAppts(p=>p.map(a=>a.id===id?{...a,status}:a));
+      const tryLogin=()=>{if(adminPass==="cestetica2024"){setAdminAuth(true);setAdminErr("");}else setAdminErr("Contraseña incorrecta.");};
+      const goHome=()=>{setView("home");setStep(1);setService(null);setDate("");setTime("");setForm({name:"",phone:"",email:"",notes:""});};
+      const getFiltered=()=>{
+        if(filter==="hoy")return appts.filter(a=>a.date===TODAY).sort((a,b)=>a.time.localeCompare(b.time));
+        if(filter==="manana"){const t=new Date();t.setDate(t.getDate()+1);return appts.filter(a=>a.date===t.toISOString().split("T")[0]).sort((a,b)=>a.time.localeCompare(b.time));}
+        return[...appts].sort((a,b)=>a.date===b.date?a.time.localeCompare(b.time):a.date.localeCompare(b.date));
+      };
+      const todayAppts=appts.filter(a=>a.date===TODAY);
+      const inp={width:"100%",padding:"11px 14px",border:`1px solid ${C.border}`,borderRadius:8,fontSize:14,background:C.bgSoft,color:C.text,boxSizing:"border-box",outline:"none",fontFamily:FONT};
+      const primaryBtn={padding:"12px 28px",borderRadius:8,border:"none",cursor:"pointer",fontSize:14,fontWeight:600,fontFamily:FONT,background:`linear-gradient(135deg,${C.primary},${C.primaryMid})`,color:"#fff"};
+      const outlineBtn={padding:"12px 28px",borderRadius:8,border:`1px solid ${C.primary}`,cursor:"pointer",fontSize:14,fontWeight:600,fontFamily:FONT,background:"transparent",color:C.primary};
+      const ghostBtn={background:"none",border:"none",cursor:"pointer",color:C.muted,fontSize:13,padding:0,fontFamily:FONT};
+
+      const buildCal=()=>{
+        const year=calMonth.getFullYear(),month=calMonth.getMonth();
+        const daysInMonth=new Date(year,month+1,0).getDate();
+        const firstDay=(new Date(year,month,1).getDay()+6)%7;
+        const todayObj=new Date();
+        const monthNames=["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+        const getDateStr=(day)=>`${year}-${String(month+1).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
+        const isPast=(day)=>new Date(year,month,day)<new Date(todayObj.getFullYear(),todayObj.getMonth(),todayObj.getDate());
+        const isSunday=(day)=>new Date(year,month,day).getDay()===0;
+        const takenCount=(day)=>ALL_SLOTS.filter(t=>slotTaken(getDateStr(day),t)).length;
+        return{year,month,daysInMonth,firstDay,monthNames,getDateStr,isPast,isSunday,takenCount};
+      };
+
+      if(view==="home") return(
+        <div style={{background:C.bg,minHeight:"100vh",fontFamily:FONT,color:C.text}}>
+          <div style={{background:C.bgSoft,borderBottom:`1px solid ${C.border}`,padding:"7px 24px",display:"flex",justifyContent:"center",flexWrap:"wrap",gap:24,fontSize:12,color:C.muted}}>
+            <span>📍 C/ Luis Vives, 9 · Onil (Alicante)</span>
+            <span>📷 @cestetica.raquel.sanchez</span>
+          </div>
+          <div style={{background:C.bgSoft,borderBottom:`1px solid ${C.border}`,padding:"0 32px"}}>
+            <div style={{maxWidth:1060,margin:"0 auto",display:"flex",alignItems:"center",justifyContent:"space-between",height:66,flexWrap:"wrap",gap:10}}>
+              <div style={{display:"flex",alignItems:"center",gap:14}}>
+                <div style={{width:44,height:44,borderRadius:10,background:`linear-gradient(135deg,${C.primary},${C.teal})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:20}}>⚡</div>
+                <div>
+                  <div style={{fontFamily:HEAD,fontSize:20,fontWeight:800,color:C.text,letterSpacing:"-0.01em"}}>C Estética</div>
+                  <div style={{fontSize:11,color:C.muted,letterSpacing:"0.1em",textTransform:"uppercase"}}>Raquel Sánchez · Onil</div>
+                </div>
+              </div>
+              <div style={{display:"flex",gap:10}}>
+                <button onClick={()=>setView("admin")} style={{...outlineBtn,padding:"8px 16px",fontSize:12}}>Admin</button>
+                <button onClick={()=>setView("booking")} style={{...primaryBtn,padding:"9px 20px",fontSize:13}}>Reservar cita ⚡</button>
+              </div>
+            </div>
+          </div>
+
+          <div style={{padding:"64px 32px",textAlign:"center",position:"relative",overflow:"hidden",background:`radial-gradient(ellipse at 30% 50%,${C.primaryGlow} 0%,transparent 60%),radial-gradient(ellipse at 70% 50%,${C.tealLight} 0%,transparent 60%)`}}>
+            <div style={{position:"absolute",top:0,left:0,right:0,bottom:0,background:"linear-gradient(180deg,transparent 60%,#0A090F 100%)"}}/>
+            <div style={{position:"relative"}}>
+              <div style={{display:"inline-flex",alignItems:"center",gap:8,background:C.primaryLight,border:`1px solid ${C.primary}40`,borderRadius:20,padding:"5px 16px",fontSize:11,color:C.accent,marginBottom:20,fontWeight:600,letterSpacing:"0.1em",textTransform:"uppercase"}}>⚡ Centro de Belleza · Onil</div>
+              <h1 style={{fontFamily:HEAD,fontSize:52,fontWeight:800,color:C.text,margin:"0 0 12px",lineHeight:1.1,letterSpacing:"-0.02em"}}>
+                C <span style={{background:`linear-gradient(135deg,${C.primary},${C.teal})`,WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>Estética</span>
+              </h1>
+              <div style={{fontFamily:HEAD,fontSize:18,color:C.textSoft,marginBottom:18}}>by Raquel Sánchez</div>
+              <p style={{fontSize:15,color:C.muted,margin:"0 auto 34px",maxWidth:460,lineHeight:1.8}}>
+                Tratamientos con láser · Depilación láser<br/>Estética facial y corporal · Tecnología avanzada
+              </p>
+              <button onClick={()=>setView("booking")} style={{...primaryBtn,fontSize:15,padding:"14px 40px"}}>Reservar cita</button>
+            </div>
+          </div>
+
+          <div style={{maxWidth:1060,margin:"0 auto",padding:"48px 32px"}}>
+            <div style={{textAlign:"center",marginBottom:40}}>
+              <div style={{fontFamily:HEAD,fontSize:32,fontWeight:800,color:C.text,marginBottom:8}}>Nuestros servicios</div>
+              <div style={{fontSize:13,color:C.muted}}>Selecciona el tratamiento que necesitas para reservar</div>
+            </div>
+            {SPECIALTIES.map(sp=>(
+              <div key={sp.category} style={{marginBottom:40}}>
+                <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:16}}>
+                  <div style={{width:32,height:32,borderRadius:8,background:`${sp.color}20`,border:`1px solid ${sp.color}40`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:16}}>{sp.emoji}</div>
+                  <div style={{fontFamily:HEAD,fontSize:20,fontWeight:700,color:sp.color}}>{sp.category}</div>
+                  <div style={{flex:1,height:1,background:`linear-gradient(90deg,${sp.color}30,transparent)`,marginLeft:8}}/>
+                </div>
+                <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(230px,1fr))",gap:12}}>
+                  {sp.services.map(s=>(
+                    <div key={s.id} onClick={()=>{setService(s);setStep(2);setView("booking");}}
+                      style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:12,padding:"18px 20px",cursor:"pointer",transition:"all 0.2s"}}
+                      onMouseEnter={e=>{e.currentTarget.style.borderColor=sp.color+"60";e.currentTarget.style.background=C.cardHover;e.currentTarget.style.transform="translateY(-2px)";e.currentTarget.style.boxShadow=`0 8px 24px ${sp.color}18`;}}
+                      onMouseLeave={e=>{e.currentTarget.style.borderColor=C.border;e.currentTarget.style.background=C.card;e.currentTarget.style.transform="none";e.currentTarget.style.boxShadow="none";}}>
+                      <div style={{fontWeight:600,fontSize:14,color:C.text,marginBottom:5}}>{s.name}</div>
+                      <div style={{fontSize:12,color:C.muted,marginBottom:14,lineHeight:1.6}}>{s.desc}</div>
+                      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                        <span style={{fontSize:11,color:C.muted,background:C.bgSoft,padding:"3px 10px",borderRadius:20,border:`1px solid ${C.border}`}}>{s.duration} min</span>
+                        <span style={{fontSize:16,fontWeight:600,color:sp.color}}>{s.price}€</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div style={{background:C.bgSoft,borderTop:`1px solid ${C.border}`,padding:"28px 32px",textAlign:"center"}}>
+            <div style={{fontFamily:HEAD,fontSize:18,fontWeight:700,color:C.text,marginBottom:4}}>C Estética · Raquel Sánchez</div>
+            <div style={{fontSize:12,color:C.muted}}>C/ Luis Vives, 9 · Onil (Alicante) · @cestetica.raquel.sanchez</div>
+          </div>
+        </div>
+      );
+
+      if(view==="booking") return(
+        <div style={{background:C.bg,minHeight:"100vh",fontFamily:FONT,color:C.text}}>
+          <div style={{background:C.bgSoft,borderBottom:`1px solid ${C.border}`,padding:"0 24px"}}>
+            <div style={{maxWidth:700,margin:"0 auto",display:"flex",alignItems:"center",justifyContent:"space-between",height:58}}>
+              <button onClick={()=>{if(step===1||step===5)goHome();else setStep(s=>s-1);}} style={ghostBtn}>← {step===1||step===5?"Inicio":"Atrás"}</button>
+              <div style={{fontFamily:HEAD,fontSize:17,fontWeight:700,color:C.primary}}>{step<5?"Reservar cita":"¡Reserva hecha!"}</div>
+              <div style={{fontSize:12,color:C.muted}}>{step<5?`${step} / 4`:""}</div>
+            </div>
+          </div>
+          {step<5&&<div style={{height:3,background:C.border}}><div style={{height:"100%",background:`linear-gradient(90deg,${C.primary},${C.teal})`,width:`${(step/4)*100}%`,transition:"width 0.3s"}}/></div>}
+
+          <div style={{maxWidth:700,margin:"0 auto",padding:"40px 24px"}}>
+            {step===1&&(
+              <>
+                <h2 style={{fontFamily:HEAD,fontSize:26,fontWeight:800,color:C.text,margin:"0 0 6px"}}>¿Qué tratamiento necesitas?</h2>
+                <p style={{fontSize:13,color:C.muted,margin:"0 0 28px"}}>Selecciona el servicio que quieres reservar</p>
+                {SPECIALTIES.map(sp=>(
+                  <div key={sp.category} style={{marginBottom:24}}>
+                    <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:12}}>
+                      <span>{sp.emoji}</span>
+                      <span style={{fontFamily:HEAD,fontSize:16,fontWeight:700,color:sp.color}}>{sp.category}</span>
+                    </div>
+                    <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(190px,1fr))",gap:8}}>
+                      {sp.services.map(s=>(
+                        <div key={s.id} onClick={()=>{setService(s);setStep(2);}}
+                          style={{background:service?.id===s.id?`${sp.color}15`:C.card,border:`1.5px solid ${service?.id===s.id?sp.color:C.border}`,borderRadius:10,padding:"13px 15px",cursor:"pointer"}}>
+                          <div style={{fontWeight:600,fontSize:13,color:C.text,marginBottom:4}}>{s.name}</div>
+                          <div style={{fontSize:11,color:C.muted,marginBottom:8,lineHeight:1.5}}>{s.desc}</div>
+                          <div style={{fontSize:11,color:C.muted}}>{s.duration} min · <span style={{fontWeight:700,color:sp.color}}>{s.price}€</span></div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </>
+            )}
+
+            {step===2&&(()=>{
+              const{year,month,daysInMonth,firstDay,monthNames,getDateStr,isPast,isSunday,takenCount}=buildCal();
+              const dayNames=["L","M","X","J","V","S","D"];
+              const morningSlots=ALL_SLOTS.filter(t=>t<"14:00");
+              const afternoonSlots=ALL_SLOTS.filter(t=>t>="14:00");
+              return(
+                <>
+                  <h2 style={{fontFamily:HEAD,fontSize:26,fontWeight:800,color:C.text,margin:"0 0 6px"}}>Elige fecha y hora</h2>
+                  <p style={{fontSize:13,color:C.muted,margin:"0 0 20px"}}>Verde = disponible · Rojo = ocupado</p>
+                  <div style={{background:`${C.primary}15`,border:`1px solid ${C.border}`,borderRadius:8,padding:"10px 14px",marginBottom:22,display:"flex",justifyContent:"space-between",fontSize:13}}>
+                    <span style={{color:C.primary,fontWeight:600}}>{service?.name}</span>
+                    <span style={{color:C.muted}}>{service?.duration} min · {service?.price}€</span>
+                  </div>
+
+                  <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:14,overflow:"hidden",marginBottom:22}}>
+                    <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"14px 18px",borderBottom:`1px solid ${C.border}`,background:C.bgSoft}}>
+                      <button onClick={()=>{setCalMonth(new Date(year,month-1,1));setDate("");setTime("");}} style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:8,padding:"5px 14px",color:C.primary,cursor:"pointer",fontSize:15,fontFamily:FONT}}>‹</button>
+                      <div style={{fontFamily:HEAD,fontSize:16,fontWeight:700,color:C.text}}>{monthNames[month]} {year}</div>
+                      <button onClick={()=>{setCalMonth(new Date(year,month+1,1));setDate("");setTime("");}} style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:8,padding:"5px 14px",color:C.primary,cursor:"pointer",fontSize:15,fontFamily:FONT}}>›</button>
+                    </div>
+                    <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",padding:"10px 10px 2px"}}>
+                      {dayNames.map((d,i)=><div key={d} style={{textAlign:"center",fontSize:11,color:i===6?C.danger:C.muted,padding:"4px 0",letterSpacing:"0.06em"}}>{d}</div>)}
+                    </div>
+                    <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:4,padding:"4px 10px 14px"}}>
+                      {Array.from({length:firstDay}).map((_,i)=><div key={`e${i}`}/>)}
+                      {Array.from({length:daysInMonth}).map((_,i)=>{
+                        const day=i+1,ds=getDateStr(day);
+                        const past=isPast(day),sun=isSunday(day);
+                        const taken=takenCount(day),full=taken>=ALL_SLOTS.length;
+                        const disabled=past||sun||full,selected=date===ds,partial=taken>0&&!full;
+                        let bg="transparent",borderC=C.border,textC=C.textSoft;
+                        if(selected){bg=C.primary;borderC=C.primary;textC="#fff";}
+                        else if(past||sun){borderC="transparent";textC=C.border;}
+                        else if(full){bg=C.dangerLight;borderC="#EF444430";textC=C.danger;}
+                        else if(partial){bg:`${C.primary}15`;borderC=`${C.primary}40`;textC=C.primary;}
+                        return(
+                          <button key={day} disabled={disabled} onClick={()=>{setDate(ds);setTime("");}}
+                            style={{aspectRatio:"1",borderRadius:8,border:`1px solid ${borderC}`,background:bg,color:textC,fontSize:13,cursor:disabled?"default":"pointer",fontFamily:FONT,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:1,transition:"all 0.12s"}}>
+                            <span>{day}</span>
+                            {!past&&!sun&&partial&&!selected&&<span style={{fontSize:6,color:C.teal}}>●●</span>}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    <div style={{display:"flex",gap:16,padding:"8px 14px 12px",borderTop:`1px solid ${C.border}`,flexWrap:"wrap"}}>
+                      {[{bg:"transparent",border:C.border,label:"Disponible"},{bg:`${C.primary}15`,border:`${C.primary}40`,label:"Parcial"},{bg:C.dangerLight,border:"#EF444430",label:"Completo"}].map(l=>(
+                        <div key={l.label} style={{display:"flex",alignItems:"center",gap:6,fontSize:11,color:C.muted}}>
+                          <div style={{width:14,height:14,borderRadius:4,background:l.bg,border:`1px solid ${l.border}`}}/>{l.label}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {date&&(
+                    <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:12,padding:"18px 20px",marginBottom:20}}>
+                      <div style={{fontFamily:HEAD,fontSize:15,fontWeight:700,color:C.text,marginBottom:16}}>{cap(fmtDate(date))}</div>
+                      {[["Mañana",morningSlots],["Tarde",afternoonSlots]].map(([label,slots])=>(
+                        <div key={label} style={{marginBottom:14}}>
+                          <div style={{fontSize:10,color:C.muted,marginBottom:10,textTransform:"uppercase",letterSpacing:"0.1em"}}>{label}</div>
+                          <div style={{display:"flex",flexWrap:"wrap",gap:8}}>
+                            {slots.map(t=>{
+                              const taken=slotTaken(date,t),sel=time===t;
+                              return(
+                                <button key={t} disabled={taken} onClick={()=>setTime(t)}
+                                  style={{padding:"9px 16px",borderRadius:8,fontSize:13,fontFamily:FONT,cursor:taken?"default":"pointer",
+                                    border:sel?`1px solid ${C.primary}`:taken?"1px solid #EF444430":"1px solid #10B98140",
+                                    background:sel?C.primary:taken?"#EF444415":"#10B98115",
+                                    color:sel?"#fff":taken?C.danger:C.success,fontWeight:sel?600:400}}>
+                                  {t} {taken?"✗":"✓"}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {time&&<div style={{textAlign:"right"}}><button onClick={()=>setStep(3)} style={primaryBtn}>Continuar →</button></div>}
+                </>
+              );
+            })()}
+
+            {step===3&&(
+              <>
+                <h2 style={{fontFamily:HEAD,fontSize:26,fontWeight:800,color:C.text,margin:"0 0 6px"}}>Tus datos</h2>
+                <p style={{fontSize:13,color:C.muted,margin:"0 0 22px"}}>Para confirmar tu cita con Raquel</p>
+                <div style={{background:`${C.primary}15`,border:`1px solid ${C.border}`,borderRadius:8,padding:"12px 16px",marginBottom:22,fontSize:13}}>
+                  <div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}><span style={{fontWeight:600,color:C.text}}>{service?.name}</span><span style={{fontWeight:600,color:C.primary}}>{service?.price}€</span></div>
+                  <div style={{color:C.muted}}>{cap(fmtDate(date))} · {time}h</div>
+                </div>
+                <div style={{display:"grid",gap:16}}>
+                  <div>
+                    <label style={{fontSize:11,fontWeight:600,color:C.textSoft,display:"block",marginBottom:8,textTransform:"uppercase",letterSpacing:"0.07em"}}>Nombre completo *</label>
+                    <input value={form.name} onChange={e=>setForm(f=>({...f,name:e.target.value}))} placeholder="Ej: María García" style={inp}/>
+                  </div>
+                  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14}}>
+                    <div>
+                      <label style={{fontSize:11,fontWeight:600,color:C.textSoft,display:"block",marginBottom:8,textTransform:"uppercase",letterSpacing:"0.07em"}}>Teléfono *</label>
+                      <input value={form.phone} onChange={e=>setForm(f=>({...f,phone:e.target.value}))} placeholder="612 345 678" style={inp}/>
+                    </div>
+                    <div>
+                      <label style={{fontSize:11,fontWeight:600,color:C.textSoft,display:"block",marginBottom:8,textTransform:"uppercase",letterSpacing:"0.07em"}}>Email (opcional)</label>
+                      <input value={form.email} onChange={e=>setForm(f=>({...f,email:e.target.value}))} placeholder="correo@email.com" style={inp}/>
+                    </div>
+                  </div>
+                  <div>
+                    <label style={{fontSize:11,fontWeight:600,color:C.textSoft,display:"block",marginBottom:8,textTransform:"uppercase",letterSpacing:"0.07em"}}>Notas (opcional)</label>
+                    <textarea value={form.notes} onChange={e=>setForm(f=>({...f,notes:e.target.value}))} placeholder="Zona a tratar, consultas previas..." rows={3} style={{...inp,resize:"vertical"}}/>
+                  </div>
+                </div>
+                <div style={{marginTop:24,textAlign:"right"}}>
+                  <button onClick={submitBooking} disabled={!form.name||!form.phone} style={{...primaryBtn,opacity:!form.name||!form.phone?0.4:1,cursor:!form.name||!form.phone?"default":"pointer"}}>
+                    Confirmar reserva ⚡
+                  </button>
+                </div>
+              </>
+            )}
+
+            {step===5&&(
+              <div style={{textAlign:"center",padding:"20px 0 40px"}}>
+                <div style={{width:72,height:72,borderRadius:"50%",background:`linear-gradient(135deg,${C.primary},${C.teal})`,display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 22px",fontSize:28}}>⚡</div>
+                <h2 style={{fontFamily:HEAD,fontSize:30,fontWeight:800,color:C.text,margin:"0 0 12px"}}>¡Reserva recibida!</h2>
+                <p style={{fontSize:14,color:C.muted,margin:"0 auto 28px",maxWidth:400,lineHeight:1.8}}>
+                  Raquel confirmará tu cita en breve. Si tienes dudas, escríbele por Instagram a <span style={{color:C.primary}}>@cestetica.raquel.sanchez</span>
+                </p>
+                <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:12,padding:"22px",maxWidth:360,margin:"0 auto 28px",textAlign:"left"}}>
+                  <div style={{fontSize:10,color:C.muted,marginBottom:14,textTransform:"uppercase",letterSpacing:"0.1em"}}>Tu reserva</div>
+                  {[["Tratamiento",service?.name],["Fecha",cap(fmtDate(date))],["Hora",`${time}h`],["Nombre",form.name],["Teléfono",form.phone]].map(([k,v])=>(
+                    <div key={k} style={{display:"flex",justifyContent:"space-between",fontSize:13,padding:"7px 0",borderBottom:`1px solid ${C.border}`}}>
+                      <span style={{color:C.muted}}>{k}</span><span style={{color:C.text}}>{v}</span>
+                    </div>
+                  ))}
+                </div>
+                <button onClick={goHome} style={outlineBtn}>Volver al inicio</button>
+              </div>
+            )}
+          </div>
+        </div>
+      );
+
+      if(view==="admin") return(
+        <div style={{background:C.bg,minHeight:"100vh",fontFamily:FONT,color:C.text}}>
+          <div style={{background:C.bgSoft,borderBottom:`1px solid ${C.border}`,padding:"0 24px"}}>
+            <div style={{maxWidth:1060,margin:"0 auto",display:"flex",alignItems:"center",justifyContent:"space-between",height:54}}>
+              <div style={{display:"flex",alignItems:"center",gap:12}}>
+                <button onClick={()=>setView("home")} style={ghostBtn}>← Inicio</button>
+                <span style={{color:C.border}}>|</span>
+                <div style={{fontFamily:HEAD,fontSize:16,fontWeight:700,color:C.primary}}>Panel · C Estética Raquel</div>
+              </div>
+              {adminAuth&&<button onClick={()=>{setAdminAuth(false);setAdminPass("");}} style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:6,padding:"6px 14px",fontSize:12,color:C.muted,cursor:"pointer",fontFamily:FONT}}>Salir</button>}
+            </div>
+          </div>
+
+          <div style={{maxWidth:1060,margin:"0 auto",padding:"36px 24px"}}>
+            {!adminAuth&&(
+              <div style={{maxWidth:380,margin:"0 auto"}}>
+                <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:14,padding:"40px 32px",textAlign:"center"}}>
+                  <div style={{width:56,height:56,borderRadius:"50%",background:`linear-gradient(135deg,${C.primary},${C.teal})`,display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 16px",fontSize:24}}>⚡</div>
+                  <h2 style={{fontFamily:HEAD,fontSize:22,fontWeight:800,color:C.text,margin:"0 0 6px"}}>Panel privado</h2>
+                  <p style={{fontSize:13,color:C.muted,marginBottom:24}}>Solo para Raquel Sánchez</p>
+                  <label style={{fontSize:11,fontWeight:600,color:C.textSoft,display:"block",marginBottom:8,textTransform:"uppercase",letterSpacing:"0.07em",textAlign:"left"}}>Contraseña</label>
+                  <input type="password" value={adminPass} onChange={e=>setAdminPass(e.target.value)} onKeyDown={e=>e.key==="Enter"&&tryLogin()} placeholder="••••••••" style={{...inp,marginBottom:12}}/>
+                  {adminErr&&<div style={{fontSize:12,color:C.danger,marginBottom:10,textAlign:"left"}}>{adminErr}</div>}
+                  <button onClick={tryLogin} style={{...primaryBtn,width:"100%",textAlign:"center"}}>Entrar</button>
+                  <div style={{fontSize:11,color:C.muted,marginTop:12}}>Demo: cestetica2024</div>
+                </div>
+              </div>
+            )}
+
+            {adminAuth&&(
+              <>
+                <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(140px,1fr))",gap:12,marginBottom:28}}>
+                  {[
+                    {label:"Citas hoy",value:todayAppts.length,color:C.primary,bg:C.primaryLight},
+                    {label:"Confirmadas hoy",value:todayAppts.filter(a=>a.status==="confirmada").length,color:C.success,bg:C.successLight},
+                    {label:"Pendientes",value:appts.filter(a=>a.status==="pendiente").length,color:C.warning,bg:C.warningLight},
+                    {label:"Total agenda",value:appts.length,color:C.muted,bg:C.bgSoft},
+                  ].map((k,i)=>(
+                    <div key={i} style={{background:k.bg,border:`1px solid ${C.border}`,borderRadius:10,padding:"18px",textAlign:"center"}}>
+                      <div style={{fontFamily:HEAD,fontSize:32,fontWeight:800,color:k.color,lineHeight:1}}>{k.value}</div>
+                      <div style={{fontSize:11,color:C.muted,marginTop:5}}>{k.label}</div>
+                    </div>
+                  ))}
+                </div>
+                <div style={{display:"flex",gap:8,marginBottom:20}}>
+                  {[["hoy","Hoy"],["manana","Mañana"],["todas","Todas"]].map(([k,label])=>(
+                    <button key={k} onClick={()=>setFilter(k)}
+                      style={{padding:"8px 18px",borderRadius:8,border:`1.5px solid ${filter===k?C.primary:C.border}`,background:filter===k?C.primaryLight:C.card,color:filter===k?C.primary:C.muted,fontSize:13,fontWeight:500,cursor:"pointer",fontFamily:FONT}}>
+                      {label}
+                    </button>
+                  ))}
+                </div>
+                <div style={{display:"grid",gap:8}}>
+                  {getFiltered().length===0&&<div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:10,padding:"40px",textAlign:"center",color:C.muted}}>No hay citas para este período ⚡</div>}
+                  {getFiltered().map(a=>(
+                    <div key={a.id} style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:10,padding:"15px 18px"}}>
+                      <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",flexWrap:"wrap",gap:12}}>
+                        <div style={{flex:1,minWidth:200}}>
+                          <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:5,flexWrap:"wrap"}}>
+                            <span style={{fontWeight:600,fontSize:15,color:C.text}}>{a.name}</span>
+                            <span style={{fontSize:11,fontWeight:600,padding:"2px 10px",borderRadius:20,...statusStyle(a.status)}}>{cap(a.status)}</span>
+                            <span style={{fontSize:11,padding:"2px 10px",borderRadius:20,background:`${getCatColor(a.service)}20`,color:getCatColor(a.service)}}>{a.service}</span>
+                          </div>
+                          <div style={{fontSize:13,color:C.muted,marginBottom:2}}>{cap(fmtDate(a.date))} · {a.time}h</div>
+                          <div style={{fontSize:13,color:C.muted}}>{a.phone}</div>
+                          {a.notes&&<div style={{fontSize:12,color:C.muted,marginTop:5,fontStyle:"italic",background:C.bgSoft,padding:"5px 10px",borderRadius:6}}>{a.notes}</div>}
+                        </div>
+                        <div style={{display:"flex",gap:6,flexShrink:0}}>
+                          {a.status==="pendiente"&&<>
+                            <button onClick={()=>updateStatus(a.id,"confirmada")} style={{padding:"7px 14px",borderRadius:8,border:`1px solid ${C.success}`,background:C.successLight,color:C.success,fontSize:12,fontWeight:600,cursor:"pointer",fontFamily:FONT}}>Confirmar</button>
+                            <button onClick={()=>updateStatus(a.id,"cancelada")}  style={{padding:"7px 14px",borderRadius:8,border:`1px solid ${C.danger}`, background:C.dangerLight, color:C.danger, fontSize:12,fontWeight:600,cursor:"pointer",fontFamily:FONT}}>Cancelar</button>
+                          </>}
+                          {a.status==="confirmada"&&<button onClick={()=>updateStatus(a.id,"cancelada")} style={{padding:"7px 14px",borderRadius:8,border:`1px solid ${C.danger}`,background:C.dangerLight,color:C.danger,fontSize:12,fontWeight:600,cursor:"pointer",fontFamily:FONT}}>Cancelar</button>}
+                          {a.status==="cancelada"&&<button onClick={()=>updateStatus(a.id,"pendiente")} style={{padding:"7px 14px",borderRadius:8,border:`1px solid ${C.border}`,background:C.bgSoft,color:C.muted,fontSize:12,fontWeight:600,cursor:"pointer",fontFamily:FONT}}>Reactivar</button>}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      );
+      return null;
+    }
+    const root=ReactDOM.createRoot(document.getElementById("root"));
+    root.render(<App/>);
+  </script>
+</body>
+</html>
